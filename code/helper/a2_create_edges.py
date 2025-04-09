@@ -6,6 +6,7 @@ import json
 import pandas as pd
 
 def load_json(json_file_path):
+    """Loading json files"""
     if os.path.exists(json_file_path):
         try:
             with open(json_file_path, 'r') as f:
@@ -16,6 +17,7 @@ def load_json(json_file_path):
             print(f"Error loading JSON from {json_file_path}, starting with empty list")
             
 def load_keyword_to_id(keywords_node):
+    """Loading keyword to id mapping"""
     keyword_to_id = {}
     with open(keywords_node, 'r') as file:
         reader = csv.DictReader(file)
@@ -24,6 +26,7 @@ def load_keyword_to_id(keywords_node):
     return keyword_to_id
 
 def load_volume_to_id(volume_file):
+    """Loading volume to journal mapping"""
     volume_to_id = {}
     with open(volume_file, 'r') as file:
         reader = csv.DictReader(file)

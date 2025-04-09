@@ -7,7 +7,6 @@ import uuid
 import pandas as pd
 
 def clean_field(value):
-    """Consistent field cleaning for CSV output"""
     value = str(value).strip()
     # Replace problematic characters
     value = value.replace('\r', ' ').replace('\n', ' ')  # Remove newlines
@@ -16,6 +15,7 @@ def clean_field(value):
     return value
 
 def load_json(json_file_path):
+    """Loading json files"""
     if os.path.exists(json_file_path):
         try:
             with open(json_file_path, 'r') as f:
@@ -29,8 +29,7 @@ def load_json(json_file_path):
 def create_paper_node(output,all_papers):
     count = 0
 
-    with open(output, 'w', newline='') as csvfile: 
-        # Extracting columns about paper
+    with open(output, 'w', newline='') as csvfile:
         columns = [
                 "paperId", "url", "title", "abstract"
             ]
@@ -38,7 +37,7 @@ def create_paper_node(output,all_papers):
                           escapechar='\\')
         writer.writeheader()
 
-        author_count=0 #for consistency check
+        author_count=0 # For consistency check
         for paper in all_papers:
             cleaned_paper = {
                 'paperId': clean_field(paper['paperId']),
@@ -57,12 +56,11 @@ def create_paper_node(output,all_papers):
 
 def create_keywords_node(output,keywords_file):
     count = 0
-    distinct_keywords = set()
+    distinct_keywords = set() # Collecting only distinct keywords
     for paper_id, keywords in keywords_file.items():
         distinct_keywords.update(kw.strip().lower() for kw in keywords if kw.strip())
 
-    with open(output, 'w', newline='') as csvfile: 
-        # Extracting columns about paper
+    with open(output, 'w', newline='') as csvfile:
         columns = [
                 "keywordId", "keyword"
             ]
@@ -81,9 +79,8 @@ def create_keywords_node(output,keywords_file):
 
 def create_journal_node(output, all_papers):
     count = 0
-    unique_journal_ids = set()
+    unique_journal_ids = set() # Collecting only distinct journals
     with open(output, 'w', newline='') as csvfile:
-        # Extracting columns about paper
         columns = [
                 "journalId", "name", "ISSN", "url"
             ]
@@ -113,9 +110,8 @@ def create_journal_node(output, all_papers):
 
 def create_volume_node(output, mapping, all_papers):
     count = 0
-    unique_volumes = set()
+    unique_volumes = set() # Collecting only distinct volumes per journal
     with open(output, 'w', newline='') as csvfile:
-        # Extracting columns about paper
         columns = [
                 "volumeId", "number", "year"
             ]
@@ -149,17 +145,17 @@ def create_volume_node(output, mapping, all_papers):
 
         print(f'Added {count} volumes to {output}')
 
+    # Creating a mapping between volume and journal for future use in edge creation
     with open(mapping, 'w', newline='') as mapcsv:
         mapwriter = csv.writer(mapcsv)
-        mapwriter.writerow(['journalId', 'year', 'number', 'volumeId'])  # Write header
+        mapwriter.writerow(['journalId', 'year', 'number', 'volumeId'])
         for (journal_id, year, number), volume_id in journal_to_volume_mapping.items():
             mapwriter.writerow([journal_id, year, number, volume_id])
 
 def create_event_node(output,all_papers):
     count = 0
-    unique_conf_ids = set()
+    unique_conf_ids = set() # Collecting only distinct events
     with open(output, 'w', newline='') as csvfile:
-        # Extracting columns about paper
         columns = [
                 "eventId", "name", "ISSN", "url", "type"
             ]
@@ -193,7 +189,11 @@ def create_edition_node(output, merged, ed_info):
     distinct_editions = ed_info[['edition', 'location', 'year', 'venue_id']].drop_duplicates()
     distinct_editions['editionId'] = [str(uuid.uuid4()) for _ in range(len(distinct_editions))]
     ed_info = pd.merge(ed_info, distinct_editions, on=['edition', 'location', 'year','venue_id'], how='left')
+
+    # Creating a mapping between edition and event for future use in edge creation
     ed_info.to_csv(merged, index=False)
+
+    # Creating a csv for edition node
     distinct_editions.drop('venue_id', axis=1, inplace=True)
     distinct_editions = distinct_editions[['editionId', 'edition', 'location', 'year']]
     distinct_editions.to_csv(output, index=False)
@@ -201,7 +201,7 @@ def create_edition_node(output, merged, ed_info):
 
 def create_author_node(output,all_papers):
     count = 0
-    unique_author_ids = set()
+    unique_author_ids = set() # Collecting only distinct authors
 
     with open(output, 'w', newline='') as csvfile: 
         columns = [
@@ -216,7 +216,7 @@ def create_author_node(output,all_papers):
             authors = paper.get('authors', None)
             for author in authors:
                 author_id = author.get('authorId', None)
-                # Check if the journal ID is already processed
+                # Check if the author ID is already processed
                 if author_id not in unique_author_ids and author_id is not None:
                     writer.writerow({
                         'authorId': author_id,

@@ -6,6 +6,7 @@ import json
 import uuid
 
 def load_json(json_file_path):
+    """Loading json files"""
     if os.path.exists(json_file_path):
         try:
             with open(json_file_path, 'r') as f:
@@ -36,7 +37,7 @@ def create_affiliation(output_node, output_edge, author_details):
 
     
     unique_affiliations = set()
-    author_affiliation_pairs = set()
+    author_affiliation_pairs = set() # Collecting distinct author-affiliation pairs for edge creation
     for author in author_details:
         if author is None:  # Skip None entries
                 continue
@@ -60,7 +61,6 @@ def create_affiliation(output_node, output_edge, author_details):
         print("Missing affiliations in UUID map:", missing_affiliations)
 
     with open(output_node, 'w', newline='') as csvfile:
-        # Extracting columns about paper
         columns = [
                 "affId", "name"
             ]

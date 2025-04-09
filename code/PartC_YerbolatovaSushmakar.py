@@ -6,6 +6,7 @@ import os
 
 warnings.filterwarnings("ignore")
 
+# Community with property 'name'. Creates 1 node with 7 (DEFINES) relationships 
 def create_db_community(session):
     session.run("""
         MERGE (db:Community {name: "Database"})
@@ -15,6 +16,7 @@ def create_db_community(session):
         MERGE (k)-[:DEFINES]->(db)
     """)
 
+# VENUE_OF edge. Creates 88 relationships 
 def create_venue_of(session):
     session.run("""
         MATCH (k:Keyword)-[:DEFINES]->(c:Community {name: "Database"})
@@ -26,6 +28,7 @@ def create_venue_of(session):
         MERGE (venue)-[:VENUE_OF]->(c)
     """)
 
+# TOP_IN_COMMUNITY edge with property 'citationCount'. Creates 100 relationships 
 def create_top_edge(session):
     session.run("""
         MATCH (p:Paper)-[:PUBLISHED_IN]->(ve)<-[:HAS_EDITION|HAS_VOLUME]-(v)-[:VENUE_OF]->(c:Community {name: "Database"})
@@ -44,6 +47,7 @@ def create_top_edge(session):
                 
     """)
 
+# POTENTIAL_REVIEWER_OF/GURU_OF edges. Creates 325 relationships in total
 def create_reviewer_guru_edge(session):
     session.run("""
         MATCH (a:Author)-[:WROTE]->(p:Paper)-[:TOP_IN_COMMUNITY]->(c:Community {name: "Database"})
@@ -52,7 +56,6 @@ def create_reviewer_guru_edge(session):
             MERGE (a)-[:POTENTIAL_REVIEWER_OF]->(c))
         FOREACH (ignore IN CASE WHEN topPaperCount >= 2 THEN [1] ELSE [] END |
             MERGE (a)-[:GURU_OF]->(c))
-       
     """)
 
 def main():
