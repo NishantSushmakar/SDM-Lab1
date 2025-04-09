@@ -33,6 +33,8 @@ def create_reviews(output_edge, paper_reviews):
     print(f"Added {count_edge} to {output_edge}")
 
 def create_affiliation(output_node, output_edge, author_details):
+
+    
     unique_affiliations = set()
     author_affiliation_pairs = set()
     for author in author_details:
@@ -78,10 +80,11 @@ def create_affiliation(output_node, output_edge, author_details):
     print(f"Added {len(author_affiliation_pairs)} to {output_edge}")
 
 
-def create_add_data(args: argparse.Namespace) -> None:
-    author_details = load_json(os.path.join(args.data_path, 'authors_details.json'))
-    paper_reviews = load_json(os.path.join(args.data_path, 'paper_reviewers_metadata.json'))
-    create_affiliation(os.path.join(args.output_path,'affiliation.csv'), os.path.join(args.output_path, 'author_affiliatedWith_affiliation.csv'), author_details)
-    create_reviews(os.path.join(args.output_path, 'review_relations.csv'), paper_reviews)
+def create_add_data(data_path,output_path) :
+    author_details = load_json(os.path.join(data_path, 'authors_details_new.json'))
+    paper_reviews = load_json(os.path.join(data_path, 'paper_reviewers_metadata.json'))
+    
+    create_affiliation(os.path.join(output_path,'affiliation.csv'), os.path.join(output_path, 'author_affiliatedWith_affiliation.csv'), author_details)
+    create_reviews(os.path.join(output_path, 'review_relations.csv'), paper_reviews)
     
     print("Created Additional Data Successfully!!!")
