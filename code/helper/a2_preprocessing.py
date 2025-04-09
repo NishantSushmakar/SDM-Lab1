@@ -307,13 +307,10 @@ def reviewers_metadata():
 
     for paper_id, author_ids in paper_reviewers.items():
         num_reviewers = len(author_ids)
-        
         for i, author_id in enumerate(author_ids, 1):
             if paper_id not in paper_reviewer_metadata:
                 paper_reviewer_metadata[paper_id] = {}
-            review_id=str(uuid.uuid4())
             paper_reviewer_metadata[paper_id][f"reviewer_{i}"] = {
-                "reviewId": review_id,
                 "authorId": author_id,
                 "comments": random.choice(peer_reviews),
                 "vote": random.choices(review_decisions, weights=[0.8, 0.2])[0],  # 80% accept, 20% reject
